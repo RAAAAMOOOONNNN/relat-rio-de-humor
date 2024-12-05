@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Relatório de Humor Semanal</title>
+    <link rel="stylesheet" href="index.css"> <!-- Link para o arquivo CSS -->
+</head>
+<body>
+
+    <div id="container">
+        <h1>Relatório de Humor Semanal</h1>
+        <img src="fotos/download.jfif" alt="Hello Kitty" class="imagem-hello-kitty">
+
+        <form id="humorForm">
+            <label for="dia">Escolha o dia da semana: </label>
+            <select id="dia" name="dia">
+                <option value="1">Segunda-feira</option>
+                <option value="2">Terça-feira</option>
+                <option value="3">Quarta-feira</option>
+                <option value="4">Quinta-feira</option>
+                <option value="5">Sexta-feira</option>
+                <option value="6">Sábado</option>
+                <option value="7">Domingo</option>
+            </select>
+
+            <label for="humor">Como você se sente hoje? (1 a 5): </label>
+            <div class="radio-buttons">
+                <label><input type="radio" name="humor" value="1"> 1</label>
+                <label><input type="radio" name="humor" value="2"> 2</label>
+                <label><input type="radio" name="humor" value="3"> 3</label>
+                <label><input type="radio" name="humor" value="4"> 4</label>
+                <label><input type="radio" name="humor" value="5"> 5</label>
+            </div>
+
+            <button type="submit">Registrar</button>
+        </form>
+
+        <h2>Relatório</h2>
+        <ul id="relatorio"></ul>
+
+        <h3>Foto do Pesquisador</h3>
+        <div class="foto-pesquisador">
+            <img src="https://via.placeholder.com/100" id="foto-usuario" class="foto-usuario" alt="Foto do usuário">
+            <p><strong>pessoa:</strong> Juju stora bazuka</p> <!-- Substitua por nome do pesquisador -->
+        </div>
+
+        <div id="relatorio-final" class="relatorio-final">
+            <!-- O relatório final aparecerá aqui quando todos os 7 dias forem registrados -->
+        </div>
+    </div>
+
+    <script>
+        const form = document.getElementById("humorForm");
+        const relatorioList = document.getElementById("relatorio");
+        const relatorioFinal = document.getElementById("relatorio-final");
+        const diasSemana = {
+            1: "Segunda-feira",
+            2: "Terça-feira",
+            3: "Quarta-feira",
+            4: "Quinta-feira",
+            5: "Sexta-feira",
+            6: "Sábado",
+            7: "Domingo"
+        };
+
+        let humorDados = [];
+
+        // Função para obter o emoji baseado no humor
+        const getEmoji = (humor) => {
+            switch(humor) {
+                case '1':
+                    return '😓';
+                case '2':
+                    return '😒';
+                case '3':
+                    return '😐';
+                case '4':
+                    return '😊';
+                case '5':
+                    return '😁';
+                default:
+                    return '';
+            }
+        };
+
+        form.addEventListener("submit", function(event) {
+            event.preventDefault();
+
+            const dia = document.getElementById("dia").value;
+            const selectedRadio = document.querySelector('input[name="humor"]:checked'); // Seleciona o radio selecionado
+
+            if (!selectedRadio) {
+                alert("Por favor, selecione uma opção de humor.");
+                return;
+            }
+
+            const humor = selectedRadio.value; // Pega o valor do radio selecionado
+            const emoji = getEmoji(humor);
+            const li = document.createElement("li");
+            li.textContent = `${diasSemana[dia]}: Humor ${humor} ${emoji}`;
+            relatorioList.appendChild(li);
+
+            // Armazenar os dados no array
+            humorDados.push({ dia: diasSemana[dia], humor: parseInt(humor) });
+
+            // Limpar os botões de rádio e selecionar o próximo dia
+            document.querySelectorAll('input[name="humor"]').forEach(radio => radio.checked = false);
+
+            // Pular para o próximo dia
+            const diaSelect = document.getElementById("dia");
+            if (parseInt(dia) < 7) {
+                diaSelect.value = parseInt(dia) + 1;
+            } else {
+                diaSelect.value = 1;
+            }
+
+            // Verificar se todos os dias foram preenchidos
+            if (humorDados.length === 7) {
+                exibirRelatorioFinal();
+            }
+        });
+
+        // Função para exibir o relatório final
+        const exibirRelatorioFinal = () => {
+            const media = humorDados.reduce((acc, val) => acc + val.humor, 0) / humorDados.length;
+            const textoMotivacional = media <= 3 ? 
+                'Lembre-se, dias difíceis acontecem, mas sua força é o que faz a diferença. Continue firme!' : 
+                'Parabéns pela sua resiliência! Você enfrentou a semana com coragem e dedicação. Continue assim!';
+
+            const relatorioText = `
+                <h2>Relatório Semanal Completo</h2>
+                <ul>
+                    ${humorDados.map(item => `<li>${item.dia}: Humor ${item.humor} ${getEmoji(item.humor)}</li>`).join('')}
+                </ul>
+                <h3>Média de Humor: ${media.toFixed(2)}</h3>
+                <p><strong>${textoMotivacional}</strong></p>
+            `;
+
+            relatorioFinal.innerHTML = relatorioText;
+        };
+    </script>
+
+</body>
+</html>
